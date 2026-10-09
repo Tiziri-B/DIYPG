@@ -10,8 +10,8 @@ int main(void) {
 
     logfp=stderr
 
-    genererPaireCles(&paire,max_prime);
-    afficherPaireCles(paire);
+    generateKeys(&paire,max_prime);
+    printKeyPair(paire);
 
     return 0;
 

@@ -4,14 +4,23 @@
 #include "rsa_common_header.h"
 
 /* Affiche une cle RSA en hexadecimal */
-void afficherCle(const char *nom, const rsaKey_t *cle);
+void printKey(const rsaKey_t *k, FILE *out);
+
 
 /* Affiche la cle publique et la cle privee */
-void afficherPaireCles(const keyPair_t *paire);
+void printKeyPair(const rsaKey_t *pub, const rsaKey_t *priv, FILE *out);
 
-/* fournis */
-void genKeysRabin(rsaKey_t *pubKey,rsaKey_t *privKey,uint64_t max_prime);
+/* pour le moment je ne sait pas si c necessaire */
+void keys_set_log(FILE *f);
+
+
+// verifie une cle peut dé/chiffrer 
+int keyCheck (const rsaKey_t *pub, const rsaKey_t *priv);
+
 
 /* Génération des clés */
-void genererPaireCles(keyPair_t*paire,uint64_t max_prime);
+// 0 si paire valide sinon -1
+int generateKeys(rsaKey_t *pub, rsaKey_t *priv);
+
+
 #endif
