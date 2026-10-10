@@ -14,8 +14,8 @@
 // 	 r' := rs - q*r', u' = us - q*u', v' = vs - q*v'
 // 	fait
 // renvoyer (r, u, v)
-#include "../rsa_common_header.h"
-#include "phase1.h"
+#include "rsa_common_header.h"
+#include "rsa_common_header.h"
 /// \brief
 int64_t bezout(uint64_t a,uint64_t b,int64_t *u,int64_t *v){
 /// \pre a, b entier naturels
