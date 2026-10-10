@@ -16,15 +16,11 @@ uint64_t get_u64_le(const uint8_t *src){
     return v;
 }
 int write_file(const char *path, const uint8_t *buf, size_t len) {
-    // 1. verifier path ; verifier buf si len > 0
     if(path==NULL || (len >0 && buf==NULL))
         return -1;
-
-    // 2. ouvrir le fichier en ecriture binaire
     FILE *f = fopen(path, "wb");
     if (f==NULL){return -1;}
 
-    // 3. ecrire len octets
     if (len > 0) {
         size_t ecrits = fwrite(buf, 1, len, f);
         if (ecrits != len) {
@@ -32,8 +28,6 @@ int write_file(const char *path, const uint8_t *buf, size_t len) {
             return -1;
         }
     }
-    // 4. fermer et verifier que tout s'est bien passe
-    // 5. retourner 0 (ou -1 a chaque echec)
     if (fclose(f) != 0) {
         return -1;
     }
@@ -45,34 +39,26 @@ int read_file(const char *path, uint8_t **buf, size_t *len) {
     }
     *buf = NULL;
     *len = 0;
-
     FILE *f = fopen(path, "rb");
     if (f == NULL) {
-        return -1;
-    }
-
+        return -1;}
     if (fseek(f, 0, SEEK_END) != 0) {
         fclose(f);
-        return -1;
-    }
+        return -1;}
     long taille = ftell(f);
     if (taille < 0) {
         fclose(f);
-        return -1;
-    }
+        return -1;}
     rewind(f);
 
     uint8_t *data = malloc(taille > 0 ? (size_t) taille : 1);
     if (data == NULL) {
         fclose(f);
-        return -1;
-    }
-
+        return -1;}
     if (taille > 0 && fread(data, 1, (size_t) taille, f) != (size_t) taille) {
         free(data);
         fclose(f);
-        return -1;
-    }
+        return -1;}
 
     fclose(f);
     *buf = data;
