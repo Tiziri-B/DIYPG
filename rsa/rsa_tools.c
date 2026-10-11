@@ -200,12 +200,14 @@ void genKeysRabin(rsaKey_t *pubKey,rsaKey_t *privKey,uint64_t max_prime){
   /// \brief génère une paire de "grandes" clefs, adaptées au cryptage RSA par bloc
   /// \param[out] pubKey : clef publique
   /// \param[out] privKey : clef privée
-printf(">>>Max=%llu\n",max_prime);
+//printf(">>>Max=%llu\n",max_prime);
   int cpt1,cpt2;
   uint64_t num1 = genereUintRabin(max_prime,&cpt1);
   uint64_t num2 = genereUintRabin(max_prime,&cpt2);
 
-  assert(num1 != num2);
+  //assert(num1 != num2);
+  while (num2 == num1)
+  num2 = genereUintRabin(max_prime,&cpt2);
 
   uint64_t N = num1*num2;
   uint64_t M = (num1-1)*(num2-1); //indicatrice d'Euler
