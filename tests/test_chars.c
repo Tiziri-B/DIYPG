@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include "rsa_chars.h"
 
-FILE *logfp = NULL; /*redefinition du header founris */
+//FILE *logfp = NULL; /*redefinition du header founris */
 
 int main(void) {
     rsaKey_t pub  = { .E = 7,     .N = 97343 };
