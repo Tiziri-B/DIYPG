@@ -6,8 +6,7 @@
 #include "io_utils.h"
 #include "rsa_bytes.h"
 
-// rsa_tools.c utilise logfp mais ne le definit pas
-FILE *logfp = NULL;
+
 
 static int echecs = 0;
 
