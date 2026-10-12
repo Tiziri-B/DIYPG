@@ -1,9 +1,11 @@
 #ifndef RSA_KEYIO_H
 #define RSA_KEYIO_H
+
+#include <stdio.h>
+#include <stdint.h>
 #include "rsa_common_header.h"
 
-/* Sauvegarde / charge une paire de clefs (fichier texte, valeurs en hexadecimal).
-   ATTENTION : le fichier contient la clef privee. 0 = succes, negatif = erreur. */
-int key_save(const char *path, const keyPair_t *kp);
-int key_load(const char *path, keyPair_t *kp);
+int key_save(const char *path, const rsaKey_t *pub, const rsaKey_t *priv);
+int key_load(const char *path, rsaKey_t *pub, rsaKey_t *priv);
+
 #endif
