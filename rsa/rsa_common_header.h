@@ -10,10 +10,13 @@
 #include <stdbool.h>
 #include <assert.h>
 #include <time.h>
-#include <stdint.h> // uintX_t et la suite
+#include <stdint.h>
 
 #define BLOCK_SIZE 4 // en octets
+
+#ifndef MAX_PRIME //pour changer à la compilation 
 #define MAX_PRIME 10000// UINT64_MAX est trop grand sans GMP
+#endif
 // avec GMP on peut gérer de plus grands nombres
 #define BLOCK_BASE_64 12 // caractères
 #define NAME_MAX_SIZE 32 // caractères
