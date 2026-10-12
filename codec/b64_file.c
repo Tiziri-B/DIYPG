@@ -49,15 +49,38 @@ static int base_valide(const char *texte, size_t n) {
     return 1;
 }
 
+int b64_encode(const uint8_t *in, size_t len, char **out) {
+    size_t longueur = 0;
+    *out = base64_encode(in,len,&longueur);
+    if (*out==NULL) return -1;
+    return 0; 
+}
+
+int b64_decode(const char *in, uint8_t **out, size_t *len) {
+    size_t n=strlen(in);
+    if (!base_valide(in,n)) return -1;
+
+    if (n==0) {
+        *out=malloc(1);
+        *len=0;
+        if (*out==NULL) return -1 ;
+        return 0;
+    }
+
+    *out=base64_decode(in,n,len);
+    if (*out==NULL) return -1;
+    return 0;
+}
+
 int fichier_vers_b64(const char *in, const char *out) {
     size_t taille=0;
     unsigned char *octets = lire_fichier (in,&taille);
     if (octets==NULL) return -1;
 
-    size_t longueur =0;
-    char *texte= base64_encode(octets,taille,&longueur);
+    char *texte=NULL;
+    int erreur= b64_encode(octets,taille,&texte);
     free(octets);
-    if (texte==NULL) return -1 ;
+    if (erreur) return -1 ;
 
     FILE *f = fopen(out,"wb");
     if (f==NULL) {
@@ -65,8 +88,9 @@ int fichier_vers_b64(const char *in, const char *out) {
         free(texte);
         return -1;
     }
-    fwrite(texte,1,longueur,f);
+    fputs(texte,f);
     fputc('\n',f);
+    fclose(f);
     free(texte);
     return 0;
 }
@@ -85,19 +109,13 @@ int b64_vers_fichier(const char *in, const char *out) {
         }
     }
 
-    if (!base_valide(texte,n)) {
-        fprintf (stderr, " Erreur : %s ne contient pas du base64 valide \n ",in);
-        return -1;
-    }
-
+    texte[n]='\0';
     unsigned char *octets=NULL;
     size_t nb_octets=0;
-    if (n>0) {
-        octets = base64_decode(texte,n,&nb_octets);
-        if (octets==NULL) {
-            free(fich);
-            return -1;
-        }
+    if (strlen(texte)!=n || b64_decode(texte,&octets,&nb_octets)!=0) {
+        fprintf(stderr,"Erreur : ' %s  ' ne contient pas du base64 valide \n",in);
+        free(fich);
+        return -1;
     }
     free(fich);
 
