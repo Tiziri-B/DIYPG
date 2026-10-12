@@ -10,7 +10,7 @@
 #include <stdbool.h>
 #include <assert.h>
 #include <time.h>
-#include <stdint.h> // uintX_t et la suite
+#include <stdint.h>
 
 #define BLOCK_SIZE 4 // en octets
 
