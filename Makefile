@@ -2,7 +2,7 @@
 .RECIPEPREFIX = >
 CC     = gcc
 CFLAGS = -Wall -Wextra -g -Icommon -Irsa -Icodec
-LDLIBS = -lm
+LDLIBS = -lm -lgmp
 
 LIB_SRC  = $(wildcard common/*.c rsa/*.c codec/*.c)
 LIB_OBJ  = $(patsubst %.c,build/%.o,$(LIB_SRC))
