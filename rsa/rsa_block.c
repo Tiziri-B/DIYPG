@@ -1,8 +1,8 @@
 #include<stdio.h>
 #include <stdint.h>
 #include <gmp.h>
-#include "rsa/rsa_common_header.h"
-#include "rsa/rsa_gmp.h"
+#include "rsa_common_header.h"
+#include "rsa_gmp.h"
 
 /** 
 m : c le bloc d entier non signe de 32 bits

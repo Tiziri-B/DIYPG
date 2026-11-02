@@ -3,9 +3,9 @@
 #include <string.h>
 #include <assert.h>
 
-#include "codec/int2char.h"
-#include "rsa/rsa_common_header.h"
-#include "rsa/rsa_block.h"
+#include "int2char.h"
+#include "rsa_common_header.h"
+#include "rsa_block.h"
 
  // N sup a 2^32
 
