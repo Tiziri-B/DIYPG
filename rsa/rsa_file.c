@@ -1,5 +1,7 @@
 #include "rsa_file.h"
-
+#include <stdlib.h>
+#include "io_utils.h"
+#include "int2char.h"
 void remplir_dernier_bloc(const unsigned char *reste, size_t n, unsigned char bloc[4])
 {
     unsigned char pad = 4 - n;
@@ -48,7 +50,7 @@ int chiffrer_fichier_bloc(const char *in, const char *out, const rsaKey_t *pub) 
         put_u64_le(chiffre + 8 * i, c);
     }
 
-    // dernier bloc avec bourrage
+// On complète le dernier bloc pour avoir 4 octets
     uint8_t bloc[4];
     remplir_dernier_bloc(clair + 4 * nb_complets, reste_n, bloc);
     uint32_t m = convert_4byte2int(bloc);
