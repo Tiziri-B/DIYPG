@@ -17,6 +17,9 @@ int chiffrer_fichier_bloc(const char *in, const char *out, const rsaKey_t *pub) 
     if (in == NULL || out == NULL || pub == NULL) {
         return RSA_ERR_ARG;
     }
+    if (pub->N <= UINT32_MAX) {
+        return RSA_ERR_SMALL_N;
+    }
 
     // lecture du fichier 
     uint8_t *clair = NULL;
