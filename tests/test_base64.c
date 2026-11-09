@@ -3,6 +3,7 @@
 
 # include "../codec/b64_file.h"
 #include "../rsa/rsa_common_header.h" 
+#include "../rsa/rsa_bytes.h"
 
 int nbEchecs =0;
 
@@ -143,7 +144,31 @@ int main(void) {
     fclose(f);
     verifier(b64_vers_fichier(source, retour) == -1, "fichier base64 invalide : erreur");
 
+
+    // phase 2 : tester la base64 sur des fichiers chiffres
+     printf("\n***** Fichiers chiffrés *****\n");
+    rsaKey_t pub, priv;
+    pub.E = 3;
+    pub.N = 11413;  
+    priv.E = 7467;
+    priv.N = 11413;
+    const char *chiffre = "build/tmp_b64_chiffre.bin";
+    const char *chiffre2 = "build/tmp_b64_chiffre2.bin";
+    for (int i = 0; i < 6; i++) {
+        creer_fichier(source, tailles[i]);
+        int ok = (chiffrer_fichier(source, chiffre, &pub) == 0)      // fichier -> chiffre
+              && (fichier_vers_b64(chiffre, texte) == 0)             // chiffre -> texte base64
+              && (b64_vers_fichier(texte, chiffre2) == 0)            // texte base64 -> chiffre
+              && meme_contenu(chiffre, chiffre2)                     // le chiffre n'a pas change ?
+              && (dechiffrer_fichier(chiffre2, retour, &priv) == 0)  // chiffre -> fichier
+              && meme_contenu(source, retour);                       // = fichier de depart ?
+        snprintf(message, sizeof message, "fichier chiffré de %d octets : aller-retour", tailles[i]);
+        verifier(ok, message);
+    }
+
      // On supprime les fichiers de test
+    remove(chiffre);
+    remove(chiffre2);
     remove(source);
     remove(texte);
     remove(retour);
