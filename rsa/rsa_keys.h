@@ -23,4 +23,15 @@ int keyCheck (const rsaKey_t *pub, const rsaKey_t *priv);
 // 0 si paire valide est générée sinon -1 (echec de generation)
 int generateKeys(rsaKey_t *pub, rsaKey_t *priv);
 
+
+/* ***** PHASE 2 ***** */
+
+// verification pour des blocs de 4 octets
+// renvoie 1 si ok, 0 sinon
+int keyCheckBlock(const rsaKey_t *pub, const rsaKey_t *priv);
+
+// generation des clés (N >2^32)
+// 0 si paire valide est générée sinon -1 
+int generateKeysBlock(rsaKey_t *pub, rsaKey_t *priv);
+
 #endif
