@@ -30,8 +30,8 @@ static int type_valide(const char *type){
 }
 
 
-static int generer_paire(keyPair_t *kp){
-    return generateKeys(&kp->pubKey , &kp->privKey);
+static int generer_paire(keyPair_t *kp) {
+    return generateKeysBlock(&kp->pubKey, &kp->privKey);
 }
 
 // 2. fonction de l annuaire 
