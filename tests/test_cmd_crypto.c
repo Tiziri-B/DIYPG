@@ -4,6 +4,7 @@
 // pour Bob avec la commande crypt, puis Bob le déchiffre avec uncrypt.
 // On vérifie qu'on retrouve le message d'Alice, et que les erreurs sont refusées.
 // On teste aussi les conversions base64.
+// Syntaxe du sujet : crypt <fichier_clair> <fichier_chiffre> <keyid>
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -92,8 +93,8 @@ static long taille(const char *chemin) {
 
 // chiffre puis déchiffre un message avec bob ; vrai si on retrouve le message
 static int aller_retour(KeyRing *kr, const char *message) {
-    char *c[] = { "crypt", "bob", "tmp_msg.txt", "tmp_msg.enc" };
-    char *u[] = { "uncrypt", "bob", "tmp_msg.enc", "tmp_msg.dec" };
+    char *c[] = { "crypt", "tmp_msg.txt", "tmp_msg.enc", "bob" };
+    char *u[] = { "uncrypt", "tmp_msg.enc", "tmp_msg.dec", "bob" };
     ecrire_texte("tmp_msg.txt", message);
     if (cmd_crypt(kr, 4, c) != CMD_OK) return 0;
     if (cmd_uncrypt(kr, 4, u) != CMD_OK) return 0;
@@ -113,13 +114,13 @@ int main(void) {
     const char *msg = "Salut Bob, rdv a 18h devant la fac !";
     ecrire_texte("tmp_msg.txt", msg);
 
-    char *c1[] = { "crypt", "bob", "tmp_msg.txt", "tmp_msg.enc" };
+    char *c1[] = { "crypt", "tmp_msg.txt", "tmp_msg.enc", "bob" };
     check("crypt bob : succes", cmd_crypt(&kr, 4, c1) == CMD_OK);
     // 36 octets -> 9 blocs complets + 1 bloc de bourrage = 10 blocs de 8 octets
     check("fichier chiffre : 80 octets", taille("tmp_msg.enc") == 80);
     check("le chiffre n'est pas le message", !contient("tmp_msg.enc", msg));
 
-    char *u1[] = { "uncrypt", "bob", "tmp_msg.enc", "tmp_msg.dec" };
+    char *u1[] = { "uncrypt", "tmp_msg.enc", "tmp_msg.dec", "bob" };
     check("uncrypt bob : succes", cmd_uncrypt(&kr, 4, u1) == CMD_OK);
     check("Bob retrouve le message d'Alice", contient("tmp_msg.dec", msg));
 
@@ -137,48 +138,57 @@ int main(void) {
     // --- 3) la mauvaise personne ne peut pas lire ---
     // on chiffre le message pour Bob dans un fichier à part, puis Alice essaie de le lire
     ecrire_texte("tmp_msg.txt", msg);
-    char *c3[] = { "crypt", "bob", "tmp_msg.txt", "tmp_pourbob.enc" };
+    char *c3[] = { "crypt", "tmp_msg.txt", "tmp_pourbob.enc", "bob" };
     check("crypt pour bob : succes", cmd_crypt(&kr, 4, c3) == CMD_OK);
 
-    char *u2[] = { "uncrypt", "alice", "tmp_pourbob.enc", "tmp_alice.dec" };
+    char *u2[] = { "uncrypt", "tmp_pourbob.enc", "tmp_alice.dec", "alice" };
     int r = cmd_uncrypt(&kr, 4, u2);
     check("alice ne lit pas le message de bob",
           r != CMD_OK || !contient("tmp_alice.dec", msg));
 
     // --- 4) erreurs d'utilisation ---
-    char *inconnu[]  = { "crypt", "zoe", "tmp_msg.txt", "tmp_x.enc" };
+    char *inconnu[]  = { "crypt", "tmp_msg.txt", "tmp_x.enc", "zoe" };
     check("id inconnue refusee", cmd_crypt(&kr, 4, inconnu) == KR_ERR_NOTFOUND);
 
-    char *court[]    = { "crypt", "bob", "tmp_msg.txt" };
+    char *court[]    = { "crypt", "tmp_msg.txt", "tmp_x.enc" };
     check("crypt avec 3 mots refuse", cmd_crypt(&kr, 3, court) == CMD_ERR_USAGE);
 
-    char *long5[]    = { "crypt", "bob", "a", "b", "c" };
+    char *long5[]    = { "crypt", "a", "b", "bob", "c" };
     check("crypt avec 5 mots refuse", cmd_crypt(&kr, 5, long5) == CMD_ERR_USAGE);
 
-    char *absent[]   = { "crypt", "bob", "n_existe_pas.txt", "tmp_x.enc" };
+    char *absent[]   = { "crypt", "n_existe_pas.txt", "tmp_x.enc", "bob" };
     check("fichier a chiffrer introuvable", cmd_crypt(&kr, 4, absent) == RSA_ERR_IO);
 
-    char *dec_abs[]  = { "uncrypt", "bob", "n_existe_pas.enc", "tmp_x.dec" };
+    char *dec_abs[]  = { "uncrypt", "n_existe_pas.enc", "tmp_x.dec", "bob" };
     check("fichier a dechiffrer introuvable", cmd_uncrypt(&kr, 4, dec_abs) == RSA_ERR_IO);
 
     // un fichier de 11 octets : pas un multiple de 8, donc pas un fichier chiffre valide
     ecrire_texte("tmp_pas_chiffre.txt", "pas chiffre");
-    char *trop_court[] = { "uncrypt", "bob", "tmp_pas_chiffre.txt", "tmp_x.dec" };
+    char *trop_court[] = { "uncrypt", "tmp_pas_chiffre.txt", "tmp_x.dec", "bob" };
     check("fichier non chiffre refuse", cmd_uncrypt(&kr, 4, trop_court) == RSA_ERR_RANGE);
 
     check("crypt avec annuaire NULL", cmd_crypt(NULL, 4, c1) == KR_ERR_PTR);
+
     // --- clef trop petite pour le chiffrement par blocs ---
     // la petite clef d'exemple du cours : N = 61 x 53 = 3233, E = 17, D = 2753
     keyring_new(&kr, "petit", "crypt");
     imposer_cles(&kr, "petit", 3233ULL, 17ULL, 2753ULL);
-    char *cp[] = { "crypt", "petit", "tmp_msg.txt", "tmp_x.enc" };
+    char *cp[] = { "crypt", "tmp_msg.txt", "tmp_x.enc", "petit" };
     check("clef trop petite refusee", cmd_crypt(&kr, 4, cp) == RSA_ERR_SMALL_N);
+
+    // --- clef de type sign : refusee pour chiffrer et dechiffrer (le sujet veut "crypt") ---
+    keyring_new(&kr, "signe", "sign");
+    imposer_cles(&kr, "signe", 1000036000099ULL, 65537ULL, 983264276609ULL);
+    char *cs[] = { "crypt", "tmp_msg.txt", "tmp_x.enc", "signe" };
+    check("crypt refuse une clef de type sign", cmd_crypt(&kr, 4, cs) == KR_ERR_TYPAGE);
+    char *us[] = { "uncrypt", "tmp_pourbob.enc", "tmp_x.dec", "signe" };
+    check("uncrypt refuse une clef de type sign", cmd_uncrypt(&kr, 4, us) == KR_ERR_TYPAGE);
 
     // --- 5) scénario complet, comme un vrai utilisateur dans le shell ---
     ecrire_texte("tmp_scenario.txt", "mot de passe du wifi : pas ici !");
     FILE *f = fopen("tmp_entree.txt", "w");
-    fputs("crypt alice tmp_scenario.txt tmp_scenario.enc\n"
-          "uncrypt alice tmp_scenario.enc tmp_scenario.dec\n"
+    fputs("crypt tmp_scenario.txt tmp_scenario.enc alice\n"
+          "uncrypt tmp_scenario.enc tmp_scenario.dec alice\n"
           "quit\n", f);
     fclose(f);
     freopen("tmp_entree.txt", "r", stdin);

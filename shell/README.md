@@ -25,8 +25,8 @@ Pour sortir : `quit`, ou `Ctrl+D`.
 | `listkeys [<keyid>]` | liste les clefs (ou une seule) |
 | `rmkeys <keyid>` | supprime une clef |
 | `show <keyid> [pub] [priv]` | affiche une clef |
-| `crypt <keyid> <clair> <chiffre>` | chiffre un fichier avec la clef publique |
-| `uncrypt <keyid> <chiffre> <clair>` | déchiffre un fichier avec la clef privée |
+| `crypt <clair> <chiffre> <keyid>` | chiffre un fichier avec la clef publique (la clef doit être de type `crypt`) |
+| `uncrypt <chiffre> <clair> <keyid>` | déchiffre un fichier avec la clef privée (la clef doit être de type `crypt`) |
 | `bin-2b64 <fichier_bin> <fichier_b64>` | convertit un fichier en base64 |
 | `b64-2bin <fichier_b64> <fichier_bin>` | convertit du base64 en fichier |
 | `help` | affiche la liste des commandes |
@@ -37,10 +37,10 @@ Les quatre premières commandes sont celles de Tiziri (`cmd_keys.c`). Moi, j'ai 
 ### Exemple
 
 ```text
-diypg> crypt bob message.txt message.enc
+diypg> crypt message.txt message.enc bob
 'message.txt' chiffre dans 'message.enc' avec la clef 'bob'
 
-diypg> uncrypt bob message.enc message_retrouve.txt
+diypg> uncrypt message.enc message_retrouve.txt bob
 'message.enc' dechiffre dans 'message_retrouve.txt' avec la clef 'bob'
 
 diypg> bin-2b64 message.enc message.b64
@@ -58,6 +58,9 @@ tape 'help' pour voir les commandes
 | `xxx : commande inconnue` | la commande n'existe pas (le shell conseille `help`) |
 | `usage : ...` | mauvais nombre de mots |
 | `ligne trop longue (254 caracteres maximum)` | la ligne dépasse la taille maximale |
+| `crypt : ... id pas trouve` | l'identifiant de clef n'existe pas |
+| `crypt : la clef 'x' est de type sign (il faut une clef de type crypt)`
+ | la clef n'est pas de type `crypt` (idem pour `uncrypt`) |
 | `crypt : modulo N trop petit` | la clef est trop petite pour chiffrer les blocs |
 | `uncrypt : valeur hors limites (...)` | mauvaise clef, ou fichier pas chiffré |
 | `... lecture ou ecriture du fichier impossible` | fichier introuvable ou impossible à lire ou écrire |
