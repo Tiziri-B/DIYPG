@@ -6,4 +6,5 @@
 
 int decouper_ligne(char *ligne, char **argv, int max);
 int interpreter_run(KeyRing *kr);
+int cmd_help(KeyRing *kr, int argc, char **argv);
 #endif

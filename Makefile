@@ -1,10 +1,10 @@
 
 .RECIPEPREFIX = >
 CC     = gcc
-CFLAGS = -Wall -Wextra -g -Icommon -Irsa -Icodec
+CFLAGS = -Wall -Wextra -g -Icommon -Irsa -Icodec -Ishell
 LDLIBS = -lm -lgmp
 
-LIB_SRC  = $(wildcard common/*.c rsa/*.c codec/*.c)
+LIB_SRC  = $(wildcard common/*.c rsa/*.c codec/*.c shell/*.c)
 LIB_OBJ  = $(patsubst %.c,build/%.o,$(LIB_SRC))
 TEST_SRC = $(wildcard tests/test_*.c)
 TEST_BIN = $(patsubst tests/%.c,build/%,$(TEST_SRC))
