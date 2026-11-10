@@ -9,34 +9,34 @@ Pour l'instant, seule la **phase 1** est rendue.
 | Phase | Contenu | État |
 |---|---|---|
 | 1 | chiffrement RSA caractère par caractère, tableaux d'octets, fichiers, génération de clefs, base 64 | rendu, base 64 encore en cours |
-| 2 à 5 | pas encore commencées | à faire |
+| 2 et 3 | phase 2 :  chiffrement RSA par blocs, intégration Base64 pour les fichiers et messages et   phase 3 : interpréteur de commandes  et un annuaire de cles  | rendu |
 
 ## Organisation du dépôt
 
 | Dossier | Contenu |
-|---|---|
-| `common/` | `io_utils` : lecture/écriture de fichiers en binaire, conversion `uint64_t` en 8 octets et inversement |
-| `rsa/` | chiffrement d'un octet (`rsa_chars`), d'un tableau et d'un fichier (`rsa_bytes`), génération des clefs (`rsa_keys`), sauvegarde des clefs (`rsa_keyio`), fonctions fournies (`rsa_tools`, `bezout`) |
-| `codec/` | conversion base 64 |
-| `tests/` | un programme de test par module (`test_*.c`) |
+| :--- | :--- |
+| `common/` | `io_utils` : lecture/écriture de fichiers en binaire, conversions d'octets |
+| `rsa/` | chiffrement (octets et blocs), génération des clefs (`rsa_keys`), sauvegarde (`rsa_keyio`), mathématiques (Bézout) |
+| `codec/` | conversion base 64 pour l'encodage et le décodage des clés et des messages chiffrés |
+| `shell/` | interface de commandes et structure de l'annuaire de clés (`keyring.c`) |
+| `tests/` | programmes de test par module (`test_*.c`), incluant l'annuaire (`test_keyring.c`) |
 | `fournis/` | fichiers donnés dans le sujet, gardés tels quels |
-| `bc/`, `hash/`, `shell/`, `src/`, `docs/` | réservés aux phases suivantes |
+
 
 ## Compiler et tester
 
 À la racine du projet :
 
-    make          # compile tous les tests dans build/
-    make test     # compile et lance tous les tests
-    make clean    # supprime build/
+    make          
+    make test     
+   
 
 Pour ne lancer qu'un test :
 
     make build/test_bytes
     ./build/test_bytes
 
-Le Makefile compile tous les `.c` de `common/`, `rsa/` et `codec/`, puis les lie avec chaque `tests/test_*.c`.
-Les avertissements de `rsa_tools.c` (`%llu`, comparaisons signées) viennent du code fourni, on ne l'a pas modifié.
+
 
 ## Choix techniques
 
@@ -59,6 +59,11 @@ Sous Windows, le mode texte modifie les octets `0x0A` et `0x1A`, ce qui abîmera
 **Fichier vide.** Il est accepté : le chiffré fait aussi 0 octet.
 
 **Déchiffrement.** La longueur d'un fichier chiffré doit être un multiple de 8, sinon on renvoie `RSA_ERR_RANGE`.
+
+**Déchiffrement par bloc .** pour ameliorer la phase 1, le chiffrement traite désormais les données par blocs.
+** Annuaires :  .**  L'annuaire permet une recherche rapide par identifiant, évitant de devoir recharger les fichiers de clés à chaque opération.
+
+
 
 ## Fonctions principales
 
