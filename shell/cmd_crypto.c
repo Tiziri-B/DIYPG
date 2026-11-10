@@ -34,7 +34,7 @@ int cmd_crypt(KeyRing *kr, int argc, char **argv)
 
     rsaKey_t *cle_pub = NULL;
     char identifiant[NAME_MAX_SIZE];
-    strncpy(identifiant, argv[1], sizeof identifiant - 1);
+    strncpy(identifiant, argv[3], sizeof identifiant - 1);
     identifiant[sizeof identifiant - 1] = '\0';
     char *slash = strchr(identifiant, '/');
     if (slash != NULL) {
@@ -44,10 +44,13 @@ int cmd_crypt(KeyRing *kr, int argc, char **argv)
             if (strcmp(c->cles[i].id, slash + 1) == 0 && strcmp(c->cles[i].type, KEY_TYPE_CRYPT) == 0) cle_pub = &c->cles[i].pubKey;
     } else {
         KeyEntry *e = keyring_find(kr, identifiant);
-        if (e != NULL && strcmp(e->type, KEY_TYPE_CRYPT) == 0) cle_pub = &e->keys.pubKey;
+        if (e != NULL) {
+    if (strcmp(e->type, KEY_TYPE_CRYPT) == 0) cle_pub = &e->keys.pubKey;
+    else return KR_ERR_TYPAGE;
+}
     }
     if (cle_pub == NULL) { aff_erreur("crypt : cle de chiffrement introuvable ou type incorrect\n"); return KR_ERR_NOTFOUND; }
-    int r = chiffrer_fichier_bloc(argv[2], argv[3], cle_pub);
+    int r = chiffrer_fichier_bloc(argv[1], argv[2], cle_pub);
     if (r != RSA_OK) {
         aff_erreur("crypt : %s\n", texte_rsa(r));
         return r;
@@ -69,22 +72,18 @@ int cmd_uncrypt(KeyRing *kr, int argc, char **argv)
         return KR_ERR_NOTFOUND;
     }
     if (strcmp(e->type, TYPE_ATTENDU) != 0) {
-        aff_erreur("uncrypt : la clef '%s' est de type %s (il faut une clef de type %s)\n",
-                   argv[3], e->type, TYPE_ATTENDU);
+       aff_erreur("uncrypt : la clef '%s' est de type %s (il faut une clef de type %s)\n",
+           argv[3], e->type, TYPE_ATTENDU);
         return KR_ERR_TYPAGE;
     }
 
-<<<<<<< HEAD
-    int r = dechiffrer_fichier_bloc(argv[1], argv[2], &e->keys.privKey);
-=======
      // le type de la clef doit etre crypt
     if (strcmp(e->type, KEY_TYPE_CRYPT) != 0) {
-        aff_erreur("uncrypt : la clef '%s' est de type %s (il faut une clef de type crypt)\n", argv[1], e->type);
+        aff_erreur("uncrypt : la clef '%s' est de type %s (il faut une clef de type crypt )\n", argv[1], e->type);
         return KR_ERR_TYPAGE;
     }
 
-    int r = dechiffrer_fichier_bloc(argv[2], argv[3], &e->keys.privKey);
->>>>>>> origin/phase3-contact
+    int r = dechiffrer_fichier_bloc(argv[1], argv[2], &e->keys.privKey);
     if (r != RSA_OK) {
         aff_erreur("uncrypt : %s\n", texte_rsa(r));
         return r;
