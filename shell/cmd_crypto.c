@@ -3,6 +3,7 @@
 #include "rsa_file.h"
 #include "b64_file.h"
 #include "affichage.h"
+#include "contacts.h"
 
 static int usage(const char *texte) {
     aff_erreur("usage : %s\n", texte);
@@ -27,14 +28,22 @@ int cmd_crypt(KeyRing *kr, int argc, char **argv)
     // il faut exactement 4 mots : crypt <keyid> <clair> <chiffre>
     if (argc != 4) return usage("crypt <keyid> <fichier_clair> <fichier_chiffre>");
 
-    // on cherche la clef de l'id donne
-    KeyEntry *e = keyring_find(kr, argv[1]);
-    if (e == NULL) {
-        aff_erreur("crypt : %s\n", keyring_erreur(KR_ERR_NOTFOUND));
-        return KR_ERR_NOTFOUND;
+    rsaKey_t *cle_pub = NULL;
+    char identifiant[NAME_MAX_SIZE];
+    strncpy(identifiant, argv[1], sizeof identifiant - 1);
+    identifiant[sizeof identifiant - 1] = '\0';
+    char *slash = strchr(identifiant, '/');
+    if (slash != NULL) {
+        *slash = '\0';
+        Contact *c = contact_find(kr, identifiant);
+        if (c != NULL) for (int i = 0; i < c->nb_cles; i++)
+            if (strcmp(c->cles[i].id, slash + 1) == 0 && strcmp(c->cles[i].type, KEY_TYPE_CRYPT) == 0) cle_pub = &c->cles[i].pubKey;
+    } else {
+        KeyEntry *e = keyring_find(kr, identifiant);
+        if (e != NULL && strcmp(e->type, KEY_TYPE_CRYPT) == 0) cle_pub = &e->keys.pubKey;
     }
-
-    int r = chiffrer_fichier_bloc(argv[2], argv[3], &e->keys.pubKey);
+    if (cle_pub == NULL) { aff_erreur("crypt : cle de chiffrement introuvable ou type incorrect\n"); return KR_ERR_NOTFOUND; }
+    int r = chiffrer_fichier_bloc(argv[2], argv[3], cle_pub);
     if (r != RSA_OK) {
         aff_erreur("crypt : %s\n", texte_rsa(r));
         return r;
@@ -54,6 +63,12 @@ int cmd_uncrypt(KeyRing *kr, int argc, char **argv)
     if (e == NULL) {
         aff_erreur("uncrypt : %s\n", keyring_erreur(KR_ERR_NOTFOUND));
         return KR_ERR_NOTFOUND;
+    }
+
+     // le type de la clef doit etre crypt
+    if (strcmp(e->type, KEY_TYPE_CRYPT) != 0) {
+        aff_erreur("uncrypt : la clef '%s' est de type %s (il faut une clef de type crypt)\n", argv[1], e->type);
+        return KR_ERR_TYPAGE;
     }
 
     int r = dechiffrer_fichier_bloc(argv[2], argv[3], &e->keys.privKey);

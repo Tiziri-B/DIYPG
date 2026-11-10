@@ -15,6 +15,8 @@
 #define KR_ERR_BADID -5 // identificateur vide 
 #define KR_ERR_MEMO -6 // echec du malloc 
 #define KR_ERR_KEYGEN -7 // echec lors de la génération de clefs 
+#define KR_ERR_FULL -8 // liste pleine (trop de contacts, ou trop de cles pour un contact)
+#define KR_ERR_BADTEXT -9 // texte trop long ou sur plusieurs lignes (nom, prenom, commentaire)
 
 
 //1. entrée de l annuaire 
@@ -25,12 +27,34 @@ typedef struct {
     keyPair_t keys;
 }KeyEntry; 
 
+// 1b. contact
+#define MAX_CONTACTS 30    
+#define MAX_CLES_CONTACT 5    
+#define TEXTE_MAX 64  
+
+typedef struct {
+    char id[NAME_MAX_SIZE];     
+    char type[TYPE_MAX_SIZE];  
+    rsaKey_t pubKey;           
+} ContactKey;
+
+typedef struct {
+    char id[NAME_MAX_SIZE];    
+    char nom[TEXTE_MAX];       
+    char prenom[TEXTE_MAX];    
+    char commentaire[TEXTE_MAX];
+    ContactKey cles[MAX_CLES_CONTACT];
+    int nb_cles;               
+} Contact;
+
 //2. anuuaire : 
 
 typedef struct {
     KeyEntry *entries;
     int count; 
     int capacite;
+    Contact contacts[MAX_CONTACTS];   
+    int nb_contacts;   
 }KeyRing;
 
 int keyring_init (KeyRing *kr);

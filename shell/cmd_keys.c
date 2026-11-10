@@ -2,6 +2,7 @@
 #include <string.h>
 #include <inttypes.h>
 #include "cmd_keys.h"
+#include "contacts.h"
 
 static int erreur(const char *cmd , int code)
 {
@@ -47,7 +48,17 @@ int cmd_listkeys(KeyRing *kr , int argc ,char **argv){
 //3. commande pour supprimer une clef à partir de l id 
 int cmd_rmkeys(KeyRing *kr , int argc ,char **argv){
     if(kr == NULL || argv == NULL ) return KR_ERR_PTR;
-    if(argc != 2) return usage("rmkeys <keyid>");
+    if(argc != 2) return usage("rmkeys <keyid> ou <idcontact>/<keyid>");
+
+    // cle du contact
+    char *separateur = strchr(argv[1], '/');
+    if (separateur != NULL) {
+        *separateur = '\0';
+        int r = contact_removekey(kr, argv[1], separateur + 1);
+        if(r != KR_OK) return erreur("rmkeys", r);
+        printf("cle '%s' supprimee du contact '%s'\n", separateur + 1, argv[1]);
+        return CMD_OK;
+    }
 
     int r = keyring_remove (kr ,argv[1]);
     if(r != KR_OK) return erreur("rmkeys", r);
@@ -70,6 +81,23 @@ int cmd_show(KeyRing *kr , int argc ,char **argv){
     }
     // par defult on affiche la clé pub seulemnts 
     if( !recup_priv && !recup_pub) recup_pub =1 ; 
+
+    // partie contact
+    char *slash = strchr(argv[1], '/');
+    if (slash != NULL) {
+        if (recup_priv) return usage("show <idcontact>/<keyid> [pub]");
+        *slash = '\0';
+        Contact *c = contact_find(kr, argv[1]);
+        if (c == NULL) return erreur("show", KR_ERR_NOTFOUND);
+        for (int i = 0; i < c->nb_cles; i++) {
+            if (strcmp(c->cles[i].id, slash + 1) == 0) {
+                printf("%s/%s (%s)\n", c->id, c->cles[i].id, c->cles[i].type);
+                if (recup_pub) affichage_cle("cle publique : ", &c->cles[i].pubKey);
+                return CMD_OK;
+            }
+        }
+        return erreur("show", KR_ERR_NOTFOUND);
+    }
 
     // mettre le resultat dans e 
     KeyEntry *e  =keyring_find(kr, argv[1]);

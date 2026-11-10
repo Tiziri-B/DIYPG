@@ -8,6 +8,7 @@
 #include "cmd_keys.h"
 #include "cmd_crypto.h"
 #include "cmd_storage.h"
+#include "cmd_contacts.h"
 
 // couleurs (codes ANSI), utilisées seulement dans un vrai terminal
 #define NOM_PROMPT     "diypg"
@@ -82,6 +83,11 @@ static const Commande TABLE[] = {
     { "save",     cmd_save,     "save [<fichier>]",                       "sauvegarde l'annuaire"          },
     { "load",     cmd_load,     "load [<fichier>]",                       "charge une sauvegarde"          },
     { "savepub",  cmd_savepub,  "savepub <keyid> <fichier>",              "ecrit une clef publique (base64)" },
+    { "listcontacts", cmd_listcontacts,"listcontacts [<idcontact ou nom>]", "liste les contacts"           },
+    { "addcontact", cmd_addcontact, "addcontact <id>",                    "ajoute un contact"              },
+    { "modifycontact", cmd_modifycontact, "modifycontact <id>",           "modifie un contact"             },
+    { "addkeys", cmd_addkeys, "addkeys <idcontact ou nom>",                "ajoute une cle publique a un contact" },
+    { "rmcontact", cmd_rmcontact, "rmcontact <id>",                        "supprime un contact"           },
     { "help",     cmd_help,     "help",                                   "affiche cette aide"             },
     { NULL,       NULL,         NULL,                                     NULL                             }
 };
