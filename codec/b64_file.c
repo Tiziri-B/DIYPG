@@ -43,7 +43,7 @@ static int base_valide(const char *texte, size_t n) {
 
     for (size_t i=0; i<lettres; i++) {
         char c=texte[i];
-        int correct= (c>='A' && c<='Z') || (c>='a' && c<='z') || (c>='0' && c<='9') || c=='+' || c=='=' || c=='/';
+        int correct= (c>='A' && c<='Z') || (c>='a' && c<='z') || (c>='0' && c<='9') || c=='+' || c=='/';
         if (!correct) return 0;
     }
     return 1;
