@@ -30,7 +30,7 @@ static int type_valide(const char *type){
 }
 
 
-static int generer_paire(keyPair_t *kp) {
+static int generer_paire(keyPair_t *kp){
     return generateKeysBlock(&kp->pubKey, &kp->privKey);
 }
 
@@ -41,6 +41,7 @@ int keyring_init (KeyRing *kr){ // initialise l annuaire vide
     kr->entries = NULL;
     kr->count = 0;
     kr->capacite = 0 ;
+    kr->nb_contacts = 0;
     return KR_OK;
 }
 
@@ -52,6 +53,7 @@ void keyring_free ( KeyRing *kr) {
     }
     kr->count = 0 ;
     kr->capacite = 0 ;
+    kr->nb_contacts = 0;
 }
 
 KeyEntry *keyring_find( KeyRing *kr , const char *id ){
@@ -138,6 +140,8 @@ const char *keyring_erreur( int code){
         case KR_ERR_BADID : return " erreur de l id ";
         case KR_ERR_MEMO : return " erreur de l alloc memo";
         case KR_ERR_KEYGEN : return "erreur de la generation de la paire de clefs";
+        case KR_ERR_FULL : return " erreur : liste pleine";
+        case KR_ERR_BADTEXT : return " erreur : texte trop long ou sur plusieurs lignes";
         default : return " autre erreur";
     }
 }
