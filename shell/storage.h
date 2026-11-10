@@ -16,3 +16,5 @@ int storage_load(KeyRing *kr, const char *path);
 
 // savepub <keyid> <fichier> 
 int storage_savepub(KeyRing *kr, const char *keyid, const char *path);
+
+#endif

@@ -6,7 +6,7 @@
 int main(void) {
     srand((unsigned int)time(NULL));
 
-    keyring annuaire;
+    KeyRing annuaire;
     keyring_init(&annuaire);
     
     int code=interpreter_run(&annuaire);
