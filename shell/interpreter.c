@@ -7,6 +7,7 @@
 #include "affichage.h"
 #include "cmd_keys.h"
 #include "cmd_crypto.h"
+#include "cmd_storage.h"
 
 // couleurs (codes ANSI), utilisées seulement dans un vrai terminal
 #define NOM_PROMPT     "diypg"
@@ -78,6 +79,9 @@ static const Commande TABLE[] = {
     { "uncrypt",  cmd_uncrypt,  "uncrypt <keyid> <chiffre> <clair>",      "dechiffre un fichier"           },
     { "bin-2b64", cmd_bin2b64,  "bin-2b64 <fichier_bin> <fichier_b64>",   "convertit un fichier en base64" },
     { "b64-2bin", cmd_b642bin,  "b64-2bin <fichier_b64> <fichier_bin>",   "convertit du base64 en fichier" },
+    { "save",     cmd_save,     "save [<fichier>]",                       "sauvegarde l'annuaire"          },
+    { "load",     cmd_load,     "load [<fichier>]",                       "charge une sauvegarde"          },
+    { "savepub",  cmd_savepub,  "savepub <keyid> <fichier>",              "ecrit une clef publique (base64)" },
     { "help",     cmd_help,     "help",                                   "affiche cette aide"             },
     { NULL,       NULL,         NULL,                                     NULL                             }
 };
